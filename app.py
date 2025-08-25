@@ -11,7 +11,7 @@ import asyncio
 import aiohttp
 from bs4 import BeautifulSoup
 from ddgs import DDGS
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 # 配置日志
 # 创建带时间戳的日志文件名
@@ -456,9 +456,8 @@ async def extract_page_content(url: str) -> Dict[str, Any]:
             src = img.get('src')
             if src:
                 if not src.startswith(('http://', 'https://')):
-                    # 处理相对路径
-                    base_url = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(url))
-                    src = str(aiohttp.yarl.URL(base_url).join(aiohttp.yarl.URL(src)))
+                    # 处理相对路径 - 使用urllib.parse.urljoin替代aiohttp.yarl
+                    src = urljoin(url, src)
                 images.append({
                     'url': src,
                     'alt': img.get('alt', ''),
